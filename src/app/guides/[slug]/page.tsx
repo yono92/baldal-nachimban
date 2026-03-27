@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GUIDE_TYPE_LABELS, GUIDE_TYPE_COLORS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { GuideType } from "@/lib/supabase/types";
 
 export default async function GuideDetailPage({
@@ -36,7 +37,7 @@ export default async function GuideDetailPage({
       </div>
 
       {guide.body && (
-        <div className="leading-relaxed whitespace-pre-wrap text-gray-700">{guide.body}</div>
+        <MarkdownRenderer content={guide.body} />
       )}
     </div>
   );

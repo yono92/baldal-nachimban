@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { Category, Paper, Guide } from "@/lib/supabase/types";
 
 export default async function TopicDetailPage({
@@ -52,11 +53,11 @@ export default async function TopicDetailPage({
       </div>
 
       {topic.summary && (
-        <p className="text-lg text-muted-foreground">{topic.summary}</p>
+        <MarkdownRenderer content={topic.summary} className="text-lg text-muted-foreground" />
       )}
 
       {topic.body && (
-        <div className="leading-relaxed whitespace-pre-wrap text-gray-700">{topic.body}</div>
+        <MarkdownRenderer content={topic.body} />
       )}
 
       {/* Related Papers */}

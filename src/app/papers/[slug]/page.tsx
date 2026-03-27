@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 
 export default async function PaperDetailPage({
   params,
@@ -32,7 +33,7 @@ export default async function PaperDetailPage({
       {paper.summary && (
         <section className="space-y-2">
           <h2 className="text-xl font-semibold">요약</h2>
-          <p className="whitespace-pre-wrap">{paper.summary}</p>
+          <MarkdownRenderer content={paper.summary} />
         </section>
       )}
 
@@ -53,14 +54,14 @@ export default async function PaperDetailPage({
       {paper.limitations && (
         <section className="space-y-2 bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6">
           <h2 className="text-xl font-semibold text-gray-700">한계점</h2>
-          <p className="whitespace-pre-wrap text-gray-600">{paper.limitations}</p>
+          <MarkdownRenderer content={paper.limitations} className="text-gray-600 dark:text-gray-400" />
         </section>
       )}
 
       {paper.parent_interpretation && (
         <section className="space-y-2 bg-teal-50 border border-teal-200 rounded-lg p-4 md:p-6">
           <h2 className="text-xl font-semibold text-teal-800">부모를 위한 해석</h2>
-          <p className="whitespace-pre-wrap text-teal-900 leading-relaxed">{paper.parent_interpretation}</p>
+          <MarkdownRenderer content={paper.parent_interpretation} className="text-teal-900 dark:text-teal-200" />
         </section>
       )}
 

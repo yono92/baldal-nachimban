@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { MarkdownEditor } from "@/components/markdown-editor";
 import { Switch } from "@/components/ui/switch";
 import { useCreatePaper, useUpdatePaper, useDeletePaper } from "@/hooks/use-papers";
 import type { Paper } from "@/lib/supabase/types";
@@ -101,13 +102,8 @@ export function PaperForm({ paper }: { paper?: Paper }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="summary">요약</Label>
-        <Textarea
-          id="summary"
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-          rows={3}
-        />
+        <Label>요약</Label>
+        <MarkdownEditor value={summary} onChange={setSummary} height={200} />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -122,23 +118,13 @@ export function PaperForm({ paper }: { paper?: Paper }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="limitations">한계점</Label>
-        <Textarea
-          id="limitations"
-          value={limitations}
-          onChange={(e) => setLimitations(e.target.value)}
-          rows={3}
-        />
+        <Label>한계점</Label>
+        <MarkdownEditor value={limitations} onChange={setLimitations} height={200} />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="parentInterpretation">부모 해석</Label>
-        <Textarea
-          id="parentInterpretation"
-          value={parentInterpretation}
-          onChange={(e) => setParentInterpretation(e.target.value)}
-          rows={3}
-        />
+        <Label>부모 해석</Label>
+        <MarkdownEditor value={parentInterpretation} onChange={setParentInterpretation} height={200} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

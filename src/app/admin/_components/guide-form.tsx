@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { MarkdownEditor } from "@/components/markdown-editor";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -101,13 +101,8 @@ export function GuideForm({ guide }: { guide?: Guide }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="body">본문</Label>
-        <Textarea
-          id="body"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          rows={8}
-        />
+        <Label>본문</Label>
+        <MarkdownEditor value={body} onChange={setBody} height={400} />
       </div>
 
       <div className="flex flex-col gap-1.5">
