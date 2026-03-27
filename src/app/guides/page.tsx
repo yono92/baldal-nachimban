@@ -47,7 +47,7 @@ export default async function GuidesPage({
         <div className="flex flex-wrap gap-2">
           <Link
             href={filterHref({ age })}
-            className={buttonVariants({ variant: !type ? "default" : "outline", size: "sm" })}
+            className={`${buttonVariants({ variant: !type ? "default" : "outline", size: "sm" })}${!type ? " ring-2 ring-primary/50" : ""}`}
           >
             전체
           </Link>
@@ -55,7 +55,7 @@ export default async function GuidesPage({
             <Link
               key={key}
               href={filterHref({ type: key, age })}
-              className={buttonVariants({ variant: type === key ? "default" : "outline", size: "sm" })}
+              className={`${buttonVariants({ variant: type === key ? "default" : "outline", size: "sm" })}${type === key ? " ring-2 ring-primary/50" : ""}`}
             >
               {GUIDE_TYPE_LABELS[key]}
             </Link>

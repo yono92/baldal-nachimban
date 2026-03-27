@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PaperSortSelect } from "./_components/paper-sort-select";
+import { PaperSearchInput } from "./_components/paper-search-input";
 import type { Category } from "@/lib/supabase/types";
 
 type SortKey = "year_desc" | "year_asc" | "title_asc";
@@ -12,9 +13,9 @@ type SortKey = "year_desc" | "year_asc" | "title_asc";
 export default async function PapersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; category?: string }>;
+  searchParams: Promise<{ sort?: string; category?: string; q?: string }>;
 }) {
-  const { sort, category } = await searchParams;
+  const { sort, category, q } = await searchParams;
   const sortKey: SortKey = (sort === "year_asc" || sort === "title_asc") ? sort : "year_desc";
 
   const supabase = await createClient();
@@ -23,6 +24,10 @@ export default async function PapersPage({
 
   if (category && category in CATEGORY_LABELS) {
     query = query.eq("category", category);
+  }
+
+  if (q) {
+    query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);
   }
 
   switch (sortKey) {
@@ -43,17 +48,21 @@ export default async function PapersPage({
     const parts: string[] = [];
     if (params.category) parts.push(`category=${params.category}`);
     if (params.sort && params.sort !== "year_desc") parts.push(`sort=${params.sort}`);
+    if (q) parts.push(`q=${encodeURIComponent(q)}`);
     return parts.length > 0 ? `/papers?${parts.join("&")}` : "/papers";
   }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">논문</h1>
-          <p className="text-muted-foreground mt-2">아동 발달에 관한 주요 연구 논문을 쉽게 정리했습니다.</p>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">논문</h1>
+            <p className="text-muted-foreground mt-2">아동 발달에 관한 주요 연구 논문을 쉽게 정리했습니다.</p>
+          </div>
+          <PaperSortSelect current={sortKey} category={category} />
         </div>
-        <PaperSortSelect current={sortKey} category={category} />
+        <PaperSearchInput current={q ?? ""} />
       </div>
 
       {/* Category filters */}
@@ -62,7 +71,7 @@ export default async function PapersPage({
         <div className="flex flex-wrap gap-2">
           <Link
             href={filterHref({ sort })}
-            className={buttonVariants({ variant: !category ? "default" : "outline", size: "sm" })}
+            className={`${buttonVariants({ variant: !category ? "default" : "outline", size: "sm" })}${!category ? " ring-2 ring-primary/50" : ""}`}
           >
             전체
           </Link>
@@ -70,7 +79,7 @@ export default async function PapersPage({
             <Link
               key={key}
               href={filterHref({ category: key, sort })}
-              className={buttonVariants({ variant: category === key ? "default" : "outline", size: "sm" })}
+              className={`${buttonVariants({ variant: category === key ? "default" : "outline", size: "sm" })}${category === key ? " ring-2 ring-primary/50" : ""}`}
             >
               {CATEGORY_ICONS[key]} {CATEGORY_LABELS[key]}
             </Link>

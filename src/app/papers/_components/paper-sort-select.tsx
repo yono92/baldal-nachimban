@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -36,7 +35,7 @@ export function PaperSortSelect({ current, category }: { current: SortKey; categ
   return (
     <Select value={current} onValueChange={handleChange}>
       <SelectTrigger>
-        <SelectValue />
+        <span>{SORT_OPTIONS[current]}</span>
       </SelectTrigger>
       <SelectContent>
         {(Object.entries(SORT_OPTIONS) as [SortKey, string][]).map(

@@ -49,7 +49,7 @@ export default async function TopicsPage({
         <div className="flex flex-wrap gap-2">
           <Link
             href={filterHref({ age })}
-            className={buttonVariants({ variant: !category ? "default" : "outline", size: "sm" })}
+            className={`${buttonVariants({ variant: !category ? "default" : "outline", size: "sm" })}${!category ? " ring-2 ring-primary/50" : ""}`}
           >
             전체
           </Link>
@@ -57,7 +57,7 @@ export default async function TopicsPage({
             <Link
               key={key}
               href={filterHref({ category: key, age })}
-              className={buttonVariants({ variant: category === key ? "default" : "outline", size: "sm" })}
+              className={`${buttonVariants({ variant: category === key ? "default" : "outline", size: "sm" })}${category === key ? " ring-2 ring-primary/50" : ""}`}
             >
               {CATEGORY_ICONS[key]} {CATEGORY_LABELS[key]}
             </Link>
