@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { href: "/papers", label: "논문", desc: "연구 논문 요약" },
   { href: "/guides", label: "가이드", desc: "실천 가이드" },
   { href: "/ages/0-12", label: "연령별", desc: "연령대별 발달 정보" },
+  { href: "/consultation", label: "AI 상담", desc: "AI 발달 상담 받기" },
 ];
 
 export function Header() {
