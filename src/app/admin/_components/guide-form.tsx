@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +15,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { GUIDE_TYPE_LABELS } from "@/lib/constants";
+import { useCreateGuide, useUpdateGuide, useDeleteGuide } from "@/hooks/use-guides";
 import type { Guide, GuideType } from "@/lib/supabase/types";
 
 function toSlug(title: string) {
@@ -38,8 +38,12 @@ export function GuideForm({ guide }: { guide?: Guide }) {
   const [minAge, setMinAge] = useState(guide?.min_age_months?.toString() ?? "");
   const [maxAge, setMaxAge] = useState(guide?.max_age_months?.toString() ?? "");
   const [published, setPublished] = useState(guide?.published ?? false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const createMutation = useCreateGuide();
+  const updateMutation = useUpdateGuide();
+  const deleteMutation = useDeleteGuide();
+
+  const mutation = isEdit ? updateMutation : createMutation;
 
   function handleTitleChange(value: string) {
     setTitle(value);
@@ -48,10 +52,7 @@ export function GuideForm({ guide }: { guide?: Guide }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    const supabase = createClient();
     const payload = {
       title,
       slug,
@@ -62,26 +63,19 @@ export function GuideForm({ guide }: { guide?: Guide }) {
       published,
     };
 
-    const result = isEdit
-      ? await supabase.from("guides").update(payload).eq("id", guide.id)
-      : await supabase.from("guides").insert(payload);
-
-    if (result.error) {
-      setError(result.error.message);
-      setLoading(false);
-      return;
+    if (isEdit) {
+      await updateMutation.mutateAsync({ id: guide.id, ...payload });
+    } else {
+      await createMutation.mutateAsync(payload);
     }
 
     router.push("/admin/guides");
-    router.refresh();
   }
 
   async function handleDelete() {
     if (!isEdit || !confirm("정말 삭제하시겠습니까?")) return;
-    const supabase = createClient();
-    await supabase.from("guides").delete().eq("id", guide.id);
+    await deleteMutation.mutateAsync(guide.id);
     router.push("/admin/guides");
-    router.refresh();
   }
 
   return (
@@ -160,15 +154,22 @@ export function GuideForm({ guide }: { guide?: Guide }) {
         <Label>공개</Label>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {mutation.error && (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
+      )}
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "저장 중..." : isEdit ? "수정" : "생성"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "저장 중..." : isEdit ? "수정" : "생성"}
         </Button>
         {isEdit && (
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            삭제
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? "삭제 중..." : "삭제"}
           </Button>
         )}
       </div>

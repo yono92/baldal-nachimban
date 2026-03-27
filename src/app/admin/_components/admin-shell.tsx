@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/auth-store";
 import type { User } from "@supabase/supabase-js";
 
 const NAV_ITEMS = [
@@ -21,10 +23,16 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { setUser, clear } = useAuthStore();
+
+  useEffect(() => {
+    setUser(user);
+  }, [user, setUser]);
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    clear();
     router.push("/admin/login");
     router.refresh();
   }

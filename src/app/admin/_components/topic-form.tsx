@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +15,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { useCreateTopic, useUpdateTopic, useDeleteTopic } from "@/hooks/use-topics";
 import type { Topic, Category } from "@/lib/supabase/types";
 
 function toSlug(title: string) {
@@ -39,8 +39,12 @@ export function TopicForm({ topic }: { topic?: Topic }) {
   const [minAge, setMinAge] = useState(topic?.min_age_months?.toString() ?? "");
   const [maxAge, setMaxAge] = useState(topic?.max_age_months?.toString() ?? "");
   const [published, setPublished] = useState(topic?.published ?? false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const createMutation = useCreateTopic();
+  const updateMutation = useUpdateTopic();
+  const deleteMutation = useDeleteTopic();
+
+  const mutation = isEdit ? updateMutation : createMutation;
 
   function handleTitleChange(value: string) {
     setTitle(value);
@@ -49,10 +53,7 @@ export function TopicForm({ topic }: { topic?: Topic }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    const supabase = createClient();
     const payload = {
       title,
       slug,
@@ -64,26 +65,19 @@ export function TopicForm({ topic }: { topic?: Topic }) {
       published,
     };
 
-    const result = isEdit
-      ? await supabase.from("topics").update(payload).eq("id", topic.id)
-      : await supabase.from("topics").insert(payload);
-
-    if (result.error) {
-      setError(result.error.message);
-      setLoading(false);
-      return;
+    if (isEdit) {
+      await updateMutation.mutateAsync({ id: topic.id, ...payload });
+    } else {
+      await createMutation.mutateAsync(payload);
     }
 
     router.push("/admin/topics");
-    router.refresh();
   }
 
   async function handleDelete() {
     if (!isEdit || !confirm("정말 삭제하시겠습니까?")) return;
-    const supabase = createClient();
-    await supabase.from("topics").delete().eq("id", topic.id);
+    await deleteMutation.mutateAsync(topic.id);
     router.push("/admin/topics");
-    router.refresh();
   }
 
   return (
@@ -172,15 +166,22 @@ export function TopicForm({ topic }: { topic?: Topic }) {
         <Label>공개</Label>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {mutation.error && (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
+      )}
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "저장 중..." : isEdit ? "수정" : "생성"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "저장 중..." : isEdit ? "수정" : "생성"}
         </Button>
         {isEdit && (
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            삭제
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? "삭제 중..." : "삭제"}
           </Button>
         )}
       </div>

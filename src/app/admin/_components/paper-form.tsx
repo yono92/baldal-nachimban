@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useCreatePaper, useUpdatePaper, useDeletePaper } from "@/hooks/use-papers";
 import type { Paper } from "@/lib/supabase/types";
 
 function toSlug(title: string) {
@@ -26,19 +26,19 @@ export function PaperForm({ paper }: { paper?: Paper }) {
   const [title, setTitle] = useState(paper?.title ?? "");
   const [slug, setSlug] = useState(paper?.slug ?? "");
   const [summary, setSummary] = useState(paper?.summary ?? "");
-  const [keyPoints, setKeyPoints] = useState(
-    paper?.key_points?.join("\n") ?? ""
-  );
+  const [keyPoints, setKeyPoints] = useState(paper?.key_points?.join("\n") ?? "");
   const [limitations, setLimitations] = useState(paper?.limitations ?? "");
-  const [parentInterpretation, setParentInterpretation] = useState(
-    paper?.parent_interpretation ?? ""
-  );
+  const [parentInterpretation, setParentInterpretation] = useState(paper?.parent_interpretation ?? "");
   const [year, setYear] = useState(paper?.year?.toString() ?? "");
   const [journal, setJournal] = useState(paper?.journal ?? "");
   const [sourceUrl, setSourceUrl] = useState(paper?.source_url ?? "");
   const [published, setPublished] = useState(paper?.published ?? false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const createMutation = useCreatePaper();
+  const updateMutation = useUpdatePaper();
+  const deleteMutation = useDeletePaper();
+
+  const mutation = isEdit ? updateMutation : createMutation;
 
   function handleTitleChange(value: string) {
     setTitle(value);
@@ -47,19 +47,13 @@ export function PaperForm({ paper }: { paper?: Paper }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    const supabase = createClient();
     const payload = {
       title,
       slug,
       summary: summary || null,
       key_points: keyPoints
-        ? keyPoints
-            .split("\n")
-            .map((s) => s.trim())
-            .filter(Boolean)
+        ? keyPoints.split("\n").map((s) => s.trim()).filter(Boolean)
         : null,
       limitations: limitations || null,
       parent_interpretation: parentInterpretation || null,
@@ -69,26 +63,19 @@ export function PaperForm({ paper }: { paper?: Paper }) {
       published,
     };
 
-    const result = isEdit
-      ? await supabase.from("papers").update(payload).eq("id", paper.id)
-      : await supabase.from("papers").insert(payload);
-
-    if (result.error) {
-      setError(result.error.message);
-      setLoading(false);
-      return;
+    if (isEdit) {
+      await updateMutation.mutateAsync({ id: paper.id, ...payload });
+    } else {
+      await createMutation.mutateAsync(payload);
     }
 
     router.push("/admin/papers");
-    router.refresh();
   }
 
   async function handleDelete() {
     if (!isEdit || !confirm("정말 삭제하시겠습니까?")) return;
-    const supabase = createClient();
-    await supabase.from("papers").delete().eq("id", paper.id);
+    await deleteMutation.mutateAsync(paper.id);
     router.push("/admin/papers");
-    router.refresh();
   }
 
   return (
@@ -189,15 +176,22 @@ export function PaperForm({ paper }: { paper?: Paper }) {
         <Label>공개</Label>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {mutation.error && (
+        <p className="text-sm text-destructive">{mutation.error.message}</p>
+      )}
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? "저장 중..." : isEdit ? "수정" : "생성"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "저장 중..." : isEdit ? "수정" : "생성"}
         </Button>
         {isEdit && (
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            삭제
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? "삭제 중..." : "삭제"}
           </Button>
         )}
       </div>
