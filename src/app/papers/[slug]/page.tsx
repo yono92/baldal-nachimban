@@ -1,7 +1,44 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import type { Category } from "@/lib/supabase/types";
+
+async function getPaper(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("papers")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  return data;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const paper = await getPaper(slug);
+  if (!paper) return {};
+  const description = paper.summary?.slice(0, 150) ?? "";
+  return {
+    title: paper.title,
+    description,
+    openGraph: {
+      title: paper.title,
+      description,
+      type: "article",
+    },
+  };
+}
 
 export default async function PaperDetailPage({
   params,
@@ -9,20 +46,44 @@ export default async function PaperDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const paper = await getPaper(slug);
+  if (!paper) notFound();
+
   const supabase = await createClient();
 
-  const { data: paper } = await supabase
-    .from("papers")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
+  // 관련 주제 (topic_papers 역방향 조회)
+  const { data: relatedTopicRows } = await supabase
+    .from("topic_papers")
+    .select("topics(*)")
+    .eq("paper_id", paper.id);
+  const relatedTopics = relatedTopicRows
+    ?.map((r: Record<string, unknown>) => r.topics)
+    .filter((t): t is Record<string, unknown> => !!t && (t as Record<string, unknown>).published === true) ?? [];
 
-  if (!paper) notFound();
+  // 같은 카테고리 다른 논문
+  let similarPapers: Record<string, unknown>[] = [];
+  if (paper.category) {
+    const { data } = await supabase
+      .from("papers")
+      .select("id, slug, title, journal, year")
+      .eq("published", true)
+      .eq("category", paper.category)
+      .neq("id", paper.id)
+      .order("year", { ascending: false })
+      .limit(3);
+    similarPapers = data ?? [];
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
       <div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          {paper.category && (
+            <Badge className={`border ${CATEGORY_COLORS[paper.category as Category]}`}>
+              {CATEGORY_ICONS[paper.category as Category]} {CATEGORY_LABELS[paper.category as Category]}
+            </Badge>
+          )}
+        </div>
         <h1 className="text-2xl md:text-3xl font-bold">{paper.title}</h1>
         <p className="text-muted-foreground mt-2">
           {paper.journal && <span>{paper.journal}</span>}
@@ -74,6 +135,45 @@ export default async function PaperDetailPage({
         >
           원문 보기
         </a>
+      )}
+
+      {/* 관련 주제 */}
+      {relatedTopics.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">관련 주제</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {relatedTopics.map((topic) => (
+              <Link key={topic.id as string} href={`/topics/${topic.slug}`}>
+                <Card className="border-l-4 border-l-blue-400 hover:shadow-md transition-shadow h-full">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">{topic.title as string}</CardTitle>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 비슷한 논문 */}
+      {similarPapers.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">비슷한 논문</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {similarPapers.map((p) => (
+              <Link key={p.id as string} href={`/papers/${p.slug}`}>
+                <Card className="border-l-4 border-l-teal-400 hover:shadow-md transition-shadow h-full">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">{p.title as string}</CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {p.journal as string} ({p.year as number})
+                    </p>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

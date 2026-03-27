@@ -1,9 +1,43 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { GUIDE_TYPE_LABELS, GUIDE_TYPE_COLORS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { GuideType } from "@/lib/supabase/types";
+
+async function getGuide(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("guides")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  return data;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const guide = await getGuide(slug);
+  if (!guide) return {};
+  const description = guide.body?.replace(/[#*\n]/g, " ").trim().slice(0, 150) ?? "";
+  return {
+    title: guide.title,
+    description,
+    openGraph: {
+      title: guide.title,
+      description,
+      type: "article",
+    },
+  };
+}
 
 export default async function GuideDetailPage({
   params,
@@ -11,16 +45,29 @@ export default async function GuideDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const guide = await getGuide(slug);
+  if (!guide) notFound();
+
   const supabase = await createClient();
 
-  const { data: guide } = await supabase
-    .from("guides")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
+  // 관련 주제 (topic_guides 역방향 조회)
+  const { data: relatedTopicRows } = await supabase
+    .from("topic_guides")
+    .select("topics(*)")
+    .eq("guide_id", guide.id);
+  const relatedTopics = relatedTopicRows
+    ?.map((r: Record<string, unknown>) => r.topics)
+    .filter((t): t is Record<string, unknown> => !!t && (t as Record<string, unknown>).published === true) ?? [];
 
-  if (!guide) notFound();
+  // 같은 타입 다른 가이드
+  const { data: similarGuides } = await supabase
+    .from("guides")
+    .select("id, slug, title, type")
+    .eq("published", true)
+    .eq("type", guide.type)
+    .neq("id", guide.id)
+    .order("created_at", { ascending: false })
+    .limit(3);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -52,6 +99,42 @@ export default async function GuideDetailPage({
 
       {guide.body && (
         <MarkdownRenderer content={guide.body} />
+      )}
+
+      {/* 관련 주제 */}
+      {relatedTopics.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">관련 주제</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {relatedTopics.map((topic) => (
+              <Link key={topic.id as string} href={`/topics/${topic.slug}`}>
+                <Card className="border-l-4 border-l-blue-400 hover:shadow-md transition-shadow h-full">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">{topic.title as string}</CardTitle>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 비슷한 가이드 */}
+      {similarGuides && similarGuides.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">비슷한 가이드</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {similarGuides.map((g) => (
+              <Link key={g.id} href={`/guides/${g.slug}`}>
+                <Card className="border-l-4 border-l-green-400 hover:shadow-md transition-shadow h-full">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">{g.title}</CardTitle>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

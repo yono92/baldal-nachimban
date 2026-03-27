@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { GlossarySearch } from "./_components/glossary-search";
+
+export const metadata: Metadata = {
+  title: "용어 사전",
+  description: "아동 발달 관련 전문 용어를 쉽게 풀어 설명합니다. 감각 통합, 실행 기능, 발달 이정표 등 핵심 용어를 확인하세요.",
+};
 
 export default async function GlossaryPage({
   searchParams,

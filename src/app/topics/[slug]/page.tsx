@@ -1,11 +1,34 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { Category, Paper, Guide } from "@/lib/supabase/types";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: topic } = await supabase
+    .from("topics")
+    .select("title, summary")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  if (!topic) return {};
+  const description = topic.summary?.slice(0, 150) ?? "";
+  return {
+    title: topic.title,
+    description,
+    openGraph: { title: topic.title, description, type: "article" },
+  };
+}
 
 export default async function TopicDetailPage({
   params,

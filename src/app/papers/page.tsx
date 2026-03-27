@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "논문",
+  description: "아동 발달에 관한 주요 연구 논문을 쉽게 정리했습니다. 자폐, ADHD, 언어, 사회성, 감각, 발달 관련 최신 연구를 확인하세요.",
+};
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

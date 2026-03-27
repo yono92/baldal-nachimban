@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "주제",
+  description: "아이의 발달과 관련된 다양한 주제를 탐색해 보세요. 자폐, ADHD, 언어발달, 사회성, 감각 반응, 연령별 발달 정보를 제공합니다.",
+};
 import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS, CATEGORY_CARD_COLORS, AGE_BANDS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";

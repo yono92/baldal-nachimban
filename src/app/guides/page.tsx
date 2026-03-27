@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GUIDE_TYPE_LABELS, GUIDE_TYPE_COLORS, AGE_BANDS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "가이드",
+  description: "아동 발달을 위한 실천 가이드. 관찰 포인트, 행동 가이드, 연령별 가이드, 활동 아이디어를 확인하세요.",
+};
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
