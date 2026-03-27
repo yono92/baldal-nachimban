@@ -15,10 +15,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "발달나침반",
-  description: "연구 기반 아동 발달 가이드 플랫폼",
+  title: {
+    default: "발달나침반",
+    template: "%s | 발달나침반",
+  },
+  description:
+    "연구 논문 기반의 아동 발달 정보를 쉽고 정확하게 전달합니다. 자폐, ADHD, 언어발달, 사회성, 감각 반응 등 전문 연구를 부모 눈높이로 안내합니다.",
   icons: {
     icon: "/favicon.svg",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "발달나침반",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
