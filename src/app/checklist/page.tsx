@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { AGE_BANDS, DOMAIN_LABELS, DOMAIN_ICONS, DISCLAIMER } from "@/lib/constants";
 import type { Domain } from "@/lib/constants";
@@ -35,10 +36,11 @@ const DOMAIN_CATEGORY_MAP: Record<Domain, string> = {
 
 export default function ChecklistPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [birthDate, setBirthDate] = useState("");
+  const [birthDateObj, setBirthDateObj] = useState<Date | undefined>();
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [hasSavedData, setHasSavedData] = useState(false);
 
+  const birthDate = birthDateObj ? format(birthDateObj, "yyyy-MM-dd") : "";
   const ageMonths = birthDate ? getAgeInMonths(birthDate) : null;
   const ageBand = ageMonths !== null ? getAgeBand(ageMonths) : null;
   const milestones = ageBand ? getMilestonesByAgeBand(ageBand.key as AgeBandKey) : [];
@@ -48,7 +50,7 @@ export default function ChecklistPage() {
   useEffect(() => {
     const saved = loadChecklist();
     if (saved) {
-      setBirthDate(saved.birthDate);
+      setBirthDateObj(new Date(saved.birthDate + "T00:00:00"));
       setChecked(saved.checked);
       setHasSavedData(true);
     }
@@ -82,7 +84,7 @@ export default function ChecklistPage() {
   function handleReset() {
     clearChecklist();
     setChecked({});
-    setBirthDate("");
+    setBirthDateObj(undefined);
     setHasSavedData(false);
     setStep(1);
   }
@@ -106,13 +108,11 @@ export default function ChecklistPage() {
         <Card>
           <CardContent className="pt-6 space-y-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="birthDate">아이의 생년월일</Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
+              <Label>아이의 생년월일</Label>
+              <DatePicker
+                value={birthDateObj}
+                onChange={setBirthDateObj}
+                placeholder="아이의 생년월일을 선택하세요"
               />
             </div>
 
