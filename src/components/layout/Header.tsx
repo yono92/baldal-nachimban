@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MenuIcon } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { href: "/topics", label: "주제", desc: "발달 관련 주제 탐색" },
@@ -26,7 +27,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+    <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-14 md:h-16">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold text-primary hover:opacity-80 transition-opacity">
           <span>🧭</span>
@@ -44,6 +45,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <ThemeToggle />
         </nav>
 
         {/* Mobile sheet trigger */}
@@ -74,6 +76,10 @@ export function Header() {
                 </SheetClose>
               ))}
             </nav>
+            <Separator />
+            <div className="px-4">
+              <ThemeToggle />
+            </div>
           </SheetContent>
         </Sheet>
       </div>

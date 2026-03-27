@@ -34,12 +34,12 @@ export const AGE_BANDS = [
 ] as const;
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  autism: "bg-purple-50 text-purple-700 border-purple-200",
-  adhd: "bg-amber-50 text-amber-700 border-amber-200",
-  language: "bg-blue-50 text-blue-700 border-blue-200",
-  social: "bg-green-50 text-green-700 border-green-200",
-  sensory: "bg-pink-50 text-pink-700 border-pink-200",
-  age_development: "bg-teal-50 text-teal-700 border-teal-200",
+  autism: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800",
+  adhd: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
+  language: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
+  social: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
+  sensory: "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800",
+  age_development: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800",
 };
 
 export const CATEGORY_CARD_COLORS: Record<Category, string> = {
