@@ -59,3 +59,22 @@ export const GUIDE_TYPE_COLORS: Record<GuideType, string> = {
 
 export const DISCLAIMER =
   "본 서비스는 의료 진단을 제공하지 않습니다. 모든 정보는 참고용이며, 우려가 있는 경우 전문가 상담을 권장합니다.";
+
+// 발달 체크리스트 영역
+export type Domain = "gross_motor" | "fine_motor" | "language" | "cognitive" | "social_emotional";
+
+export const DOMAIN_LABELS: Record<Domain, string> = {
+  gross_motor: "대근육 운동",
+  fine_motor: "소근육 운동",
+  language: "언어",
+  cognitive: "인지",
+  social_emotional: "사회·정서",
+};
+
+export const DOMAIN_ICONS: Record<Domain, string> = {
+  gross_motor: "🏃",
+  fine_motor: "✋",
+  language: "💬",
+  cognitive: "🧠",
+  social_emotional: "❤️",
+};
