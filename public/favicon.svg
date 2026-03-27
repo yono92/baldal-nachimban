@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <circle cx="16" cy="16" r="14" fill="#f0fdfa" stroke="#0d9488" stroke-width="2"/>
+  <circle cx="16" cy="16" r="2" fill="#0d9488"/>
+  <!-- Compass needle N (teal) -->
+  <polygon points="16,4 13.5,15 16,13 18.5,15" fill="#0d9488"/>
+  <!-- Compass needle S (light) -->
+  <polygon points="16,28 13.5,17 16,19 18.5,17" fill="#99f6e4"/>
+  <!-- Cardinal ticks -->
+  <line x1="16" y1="2" x2="16" y2="5" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16" y1="27" x2="16" y2="30" stroke="#0d9488" stroke-width="1" stroke-linecap="round"/>
+  <line x1="2" y1="16" x2="5" y2="16" stroke="#0d9488" stroke-width="1" stroke-linecap="round"/>
+  <line x1="27" y1="16" x2="30" y2="16" stroke="#0d9488" stroke-width="1" stroke-linecap="round"/>
+</svg>
