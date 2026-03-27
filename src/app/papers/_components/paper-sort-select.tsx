@@ -17,7 +17,7 @@ const SORT_OPTIONS = {
 
 type SortKey = keyof typeof SORT_OPTIONS;
 
-export function PaperSortSelect({ current }: { current: SortKey }) {
+export function PaperSortSelect({ current, category }: { current: SortKey; category?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 

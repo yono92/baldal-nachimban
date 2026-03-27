@@ -32,6 +32,7 @@ export interface Paper {
   year: number | null;
   journal: string | null;
   source_url: string | null;
+  category: Category | null;
   published: boolean;
   created_at: string;
 }

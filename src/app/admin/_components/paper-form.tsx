@@ -7,9 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { CATEGORY_LABELS } from "@/lib/constants";
 import { useCreatePaper, useUpdatePaper, useDeletePaper } from "@/hooks/use-papers";
-import type { Paper } from "@/lib/supabase/types";
+import type { Paper, Category } from "@/lib/supabase/types";
 
 function toSlug(title: string) {
   return title
@@ -33,6 +41,7 @@ export function PaperForm({ paper }: { paper?: Paper }) {
   const [year, setYear] = useState(paper?.year?.toString() ?? "");
   const [journal, setJournal] = useState(paper?.journal ?? "");
   const [sourceUrl, setSourceUrl] = useState(paper?.source_url ?? "");
+  const [category, setCategory] = useState<Category | "">(paper?.category ?? "");
   const [published, setPublished] = useState(paper?.published ?? false);
 
   const createMutation = useCreatePaper();
@@ -61,6 +70,7 @@ export function PaperForm({ paper }: { paper?: Paper }) {
       year: year ? Number(year) : null,
       journal: journal || null,
       source_url: sourceUrl || null,
+      category: category || null,
       published,
     };
 
@@ -99,6 +109,24 @@ export function PaperForm({ paper }: { paper?: Paper }) {
           onChange={(e) => setSlug(e.target.value)}
           required
         />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label>카테고리</Label>
+        <Select value={category} onValueChange={(v) => setCategory((v ?? "") as Category | "")}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="카테고리 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.entries(CATEGORY_LABELS) as [Category, string][]).map(
+              ([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              )
+            )}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-1.5">

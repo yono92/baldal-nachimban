@@ -11,9 +11,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { CATEGORY_LABELS } from "@/lib/constants";
 import { usePapers } from "@/hooks/use-papers";
+import type { Category } from "@/lib/supabase/types";
 
 type SortKey = "created_at" | "year_desc" | "year_asc" | "title";
+type FilterCategory = "all" | Category;
 
 const SORT_LABELS: Record<SortKey, string> = {
   created_at: "등록일순",
@@ -22,24 +25,33 @@ const SORT_LABELS: Record<SortKey, string> = {
   title: "제목순",
 };
 
+const FILTER_LABELS: Record<FilterCategory, string> = {
+  all: "전체",
+  ...CATEGORY_LABELS,
+};
+
 export function PaperList() {
   const { data: papers, isLoading } = usePapers();
   const [sortBy, setSortBy] = useState<SortKey>("created_at");
+  const [filterCategory, setFilterCategory] = useState<FilterCategory>("all");
 
   const sortedPapers = useMemo(() => {
     if (!papers) return [];
-    const copy = [...papers];
+    let filtered = [...papers];
+    if (filterCategory !== "all") {
+      filtered = filtered.filter((p) => p.category === filterCategory);
+    }
     switch (sortBy) {
       case "year_desc":
-        return copy.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+        return filtered.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
       case "year_asc":
-        return copy.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+        return filtered.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
       case "title":
-        return copy.sort((a, b) => a.title.localeCompare(b.title, "ko"));
+        return filtered.sort((a, b) => a.title.localeCompare(b.title, "ko"));
       default:
-        return copy.sort((a, b) => b.created_at.localeCompare(a.created_at));
+        return filtered.sort((a, b) => b.created_at.localeCompare(a.created_at));
     }
-  }, [papers, sortBy]);
+  }, [papers, sortBy, filterCategory]);
 
   if (isLoading) {
     return (
@@ -53,8 +65,20 @@ export function PaperList() {
 
   return (
     <>
-      <div className="flex justify-end mb-3">
-        <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
+      <div className="flex justify-end gap-2 mb-3">
+        <Select value={filterCategory} onValueChange={(v) => setFilterCategory((v ?? "all") as FilterCategory)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.entries(FILTER_LABELS) as [FilterCategory, string][]).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => setSortBy((v ?? "created_at") as SortKey)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
