@@ -36,6 +36,20 @@ export default async function GuideDetailPage({
         )}
       </div>
 
+      {guide.type === "activity" && (guide.materials || guide.duration_minutes || guide.difficulty) && (
+        <div className="flex flex-wrap gap-3 rounded-lg bg-muted/50 p-4 text-sm">
+          {guide.duration_minutes && (
+            <span>⏱️ 소요시간: <strong>{guide.duration_minutes}분</strong></span>
+          )}
+          {guide.difficulty && (
+            <span>📊 난이도: <strong>{guide.difficulty}</strong></span>
+          )}
+          {guide.materials && (
+            <span>🧸 준비물: <strong>{guide.materials}</strong></span>
+          )}
+        </div>
+      )}
+
       {guide.body && (
         <MarkdownRenderer content={guide.body} />
       )}

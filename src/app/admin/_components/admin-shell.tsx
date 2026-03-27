@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/admin/topics", label: "주제" },
   { href: "/admin/papers", label: "논문" },
   { href: "/admin/guides", label: "가이드" },
+  { href: "/admin/glossary", label: "용어" },
 ];
 
 export function AdminShell({

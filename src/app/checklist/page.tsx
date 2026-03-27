@@ -105,7 +105,7 @@ export default function ChecklistPage() {
           </p>
         </div>
 
-        <Card>
+        <Card className="overflow-visible">
           <CardContent className="pt-6 space-y-4">
             <div className="flex flex-col gap-1.5">
               <Label>아이의 생년월일</Label>

@@ -6,7 +6,7 @@ export type Category =
   | "sensory"
   | "age_development";
 
-export type GuideType = "observation" | "action" | "age_guide";
+export type GuideType = "observation" | "action" | "age_guide" | "activity";
 
 export interface Topic {
   id: string;
@@ -45,6 +45,18 @@ export interface Guide {
   type: GuideType;
   min_age_months: number | null;
   max_age_months: number | null;
+  materials: string | null;
+  duration_minutes: number | null;
+  difficulty: string | null;
+  published: boolean;
+  created_at: string;
+}
+
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  definition: string;
+  category: string | null;
   published: boolean;
   created_at: string;
 }
@@ -57,6 +69,7 @@ export interface Database {
       guides: { Row: Guide; Insert: Omit<Guide, "id" | "created_at">; Update: Partial<Omit<Guide, "id">> };
       topic_papers: { Row: { topic_id: string; paper_id: string } };
       topic_guides: { Row: { topic_id: string; guide_id: string } };
+      glossary_terms: { Row: GlossaryTerm; Insert: Omit<GlossaryTerm, "id" | "created_at">; Update: Partial<Omit<GlossaryTerm, "id">> };
     };
   };
 }

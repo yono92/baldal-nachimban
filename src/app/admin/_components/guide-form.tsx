@@ -37,6 +37,9 @@ export function GuideForm({ guide }: { guide?: Guide }) {
   const [type, setType] = useState<GuideType>(guide?.type ?? "observation");
   const [minAge, setMinAge] = useState(guide?.min_age_months?.toString() ?? "");
   const [maxAge, setMaxAge] = useState(guide?.max_age_months?.toString() ?? "");
+  const [materials, setMaterials] = useState(guide?.materials ?? "");
+  const [duration, setDuration] = useState(guide?.duration_minutes?.toString() ?? "");
+  const [difficulty, setDifficulty] = useState(guide?.difficulty ?? "");
   const [published, setPublished] = useState(guide?.published ?? false);
 
   const createMutation = useCreateGuide();
@@ -60,6 +63,9 @@ export function GuideForm({ guide }: { guide?: Guide }) {
       type,
       min_age_months: minAge ? Number(minAge) : null,
       max_age_months: maxAge ? Number(maxAge) : null,
+      materials: materials || null,
+      duration_minutes: duration ? Number(duration) : null,
+      difficulty: difficulty || null,
       published,
     };
 
@@ -143,6 +149,45 @@ export function GuideForm({ guide }: { guide?: Guide }) {
           />
         </div>
       </div>
+
+      {type === "activity" && (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="materials">준비물</Label>
+            <Input
+              id="materials"
+              value={materials}
+              onChange={(e) => setMaterials(e.target.value)}
+              placeholder="예: 색종이, 풀, 가위"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="duration">소요시간 (분)</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="예: 15"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>난이도</Label>
+              <Select value={difficulty} onValueChange={(v) => setDifficulty(v ?? "")}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="쉬움">쉬움</SelectItem>
+                  <SelectItem value="보통">보통</SelectItem>
+                  <SelectItem value="어려움">어려움</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="flex items-center gap-2">
         <Switch checked={published} onCheckedChange={setPublished} />

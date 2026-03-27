@@ -22,6 +22,7 @@ const NAV_LINKS = [
   { href: "/guides", label: "가이드", desc: "실천 가이드" },
   { href: "/ages/0-12", label: "연령별", desc: "연령대별 발달 정보" },
   { href: "/checklist", label: "체크리스트", desc: "발달 이정표 점검" },
+  { href: "/glossary", label: "용어 사전", desc: "발달 용어 풀이" },
   { href: "/consultation", label: "AI 상담", desc: "AI 발달 상담 받기" },
 ];
 

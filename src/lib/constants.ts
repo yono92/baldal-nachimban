@@ -22,6 +22,7 @@ export const GUIDE_TYPE_LABELS: Record<GuideType, string> = {
   observation: "관찰 포인트",
   action: "행동 가이드",
   age_guide: "연령별 가이드",
+  activity: "활동 아이디어",
 };
 
 export const AGE_BANDS = [
@@ -55,6 +56,7 @@ export const GUIDE_TYPE_COLORS: Record<GuideType, string> = {
   observation: "bg-indigo-50 text-indigo-700 border-indigo-200",
   action: "bg-emerald-50 text-emerald-700 border-emerald-200",
   age_guide: "bg-sky-50 text-sky-700 border-sky-200",
+  activity: "bg-orange-50 text-orange-700 border-orange-200",
 };
 
 export const DISCLAIMER =
