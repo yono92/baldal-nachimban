@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DISCLAIMER } from "@/lib/constants";
@@ -30,8 +31,10 @@ export default function ConsultationPage() {
   const [step, setStep] = useState(1);
 
   // Step 1
-  const [birthDate, setBirthDate] = useState("");
+  const [birthDateObj, setBirthDateObj] = useState<Date | undefined>();
   const [gender, setGender] = useState<"male" | "female" | "">("");
+
+  const birthDate = birthDateObj ? format(birthDateObj, "yyyy-MM-dd") : "";
 
   // Step 2
   const [selectedSymptoms, setSelectedSymptoms] = useState<Set<string>>(
@@ -120,7 +123,7 @@ export default function ConsultationPage() {
 
   const handleReset = () => {
     setStep(1);
-    setBirthDate("");
+    setBirthDateObj(undefined);
     setGender("");
     setSelectedSymptoms(new Set());
     setFreeText("");
@@ -168,19 +171,19 @@ export default function ConsultationPage() {
 
       {/* Step 1: Child info */}
       {step === 1 && (
-        <Card>
+        <Card className="overflow-visible">
           <CardHeader>
             <CardTitle>아이 정보 입력</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="birthDate">생년월일</Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
+              <Label>생년월일</Label>
+              <DatePicker
+                value={birthDateObj}
+                onChange={setBirthDateObj}
+                placeholder="아이의 생년월일을 선택하세요"
+                fromYear={new Date().getFullYear() - 7}
+                toYear={new Date().getFullYear()}
               />
               {ageInMonths > 0 && (
                 <p className="text-sm text-muted-foreground">

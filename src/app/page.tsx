@@ -68,7 +68,7 @@ export default function HomePage() {
                 <Card className="hover:shadow-md hover:border-primary/30 transition-all duration-200 cursor-pointer text-center">
                   <CardHeader className="py-6">
                     <div className="text-2xl font-bold text-primary">{band.label.replace("개월", "").replace("~", "-")}</div>
-                    <p className="text-xs text-muted-foreground mt-1">{band.label.includes("개월") ? "개월" : ""}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{band.label.includes("개월") ? "개월" : "\u00A0"}</p>
                   </CardHeader>
                 </Card>
               </Link>

@@ -52,15 +52,15 @@ export default async function PaperDetailPage({
       )}
 
       {paper.limitations && (
-        <section className="space-y-2 bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6">
-          <h2 className="text-xl font-semibold text-gray-700">한계점</h2>
+        <section className="space-y-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 md:p-6">
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200">한계점</h2>
           <MarkdownRenderer content={paper.limitations} className="text-gray-600 dark:text-gray-400" />
         </section>
       )}
 
       {paper.parent_interpretation && (
-        <section className="space-y-2 bg-teal-50 border border-teal-200 rounded-lg p-4 md:p-6">
-          <h2 className="text-xl font-semibold text-teal-800">부모를 위한 해석</h2>
+        <section className="space-y-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800 rounded-lg p-4 md:p-6">
+          <h2 className="text-xl font-semibold text-teal-800 dark:text-teal-300">부모를 위한 해석</h2>
           <MarkdownRenderer content={paper.parent_interpretation} className="text-teal-900 dark:text-teal-200" />
         </section>
       )}
