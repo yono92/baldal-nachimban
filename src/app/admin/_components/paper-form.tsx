@@ -15,9 +15,9 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { CATEGORY_LABELS } from "@/lib/constants";
+import { CATEGORY_LABELS, EVIDENCE_LEVEL_LABELS } from "@/lib/constants";
 import { useCreatePaper, useUpdatePaper, useDeletePaper } from "@/hooks/use-papers";
-import type { Paper, Category } from "@/lib/supabase/types";
+import type { Paper, Category, EvidenceLevel } from "@/lib/supabase/types";
 
 function toSlug(title: string) {
   return title
@@ -42,6 +42,9 @@ export function PaperForm({ paper }: { paper?: Paper }) {
   const [journal, setJournal] = useState(paper?.journal ?? "");
   const [sourceUrl, setSourceUrl] = useState(paper?.source_url ?? "");
   const [category, setCategory] = useState<Category | "">(paper?.category ?? "");
+  const [doi, setDoi] = useState(paper?.doi ?? "");
+  const [evidenceLevel, setEvidenceLevel] = useState<EvidenceLevel | "">(paper?.evidence_level ?? "");
+  const [reviewedAt, setReviewedAt] = useState(paper?.reviewed_at ?? "");
   const [published, setPublished] = useState(paper?.published ?? false);
 
   const createMutation = useCreatePaper();
@@ -71,6 +74,9 @@ export function PaperForm({ paper }: { paper?: Paper }) {
       journal: journal || null,
       source_url: sourceUrl || null,
       category: category || null,
+      doi: doi || null,
+      evidence_level: evidenceLevel || null,
+      reviewed_at: reviewedAt || null,
       published,
     };
 
@@ -173,6 +179,45 @@ export function PaperForm({ paper }: { paper?: Paper }) {
             onChange={(e) => setJournal(e.target.value)}
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="doi">DOI</Label>
+          <Input
+            id="doi"
+            value={doi}
+            onChange={(e) => setDoi(e.target.value)}
+            placeholder="예: 10.1000/example"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label>근거 수준</Label>
+          <Select value={evidenceLevel} onValueChange={(v) => setEvidenceLevel((v ?? "") as EvidenceLevel | "")}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="근거 수준 선택" />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.entries(EVIDENCE_LEVEL_LABELS) as [EvidenceLevel, string][]).map(
+                ([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                )
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="reviewedAt">마지막 검토일</Label>
+        <Input
+          id="reviewedAt"
+          type="date"
+          value={reviewedAt}
+          onChange={(e) => setReviewedAt(e.target.value)}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">

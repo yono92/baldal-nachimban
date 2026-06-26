@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
+import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS, EVIDENCE_LEVEL_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
-import type { Category } from "@/lib/supabase/types";
+import type { Category, EvidenceLevel } from "@/lib/supabase/types";
 
 async function getPaper(slug: string) {
   const supabase = await createClient();
@@ -89,6 +89,21 @@ export default async function PaperDetailPage({
           {paper.journal && <span>{paper.journal}</span>}
           {paper.year && <span> ({paper.year})</span>}
         </p>
+        {(paper.doi || paper.evidence_level || paper.reviewed_at) && (
+          <div className="mt-4 flex flex-wrap gap-2 text-sm">
+            {paper.evidence_level && (
+              <Badge variant="outline">
+                근거 수준: {EVIDENCE_LEVEL_LABELS[paper.evidence_level as EvidenceLevel]}
+              </Badge>
+            )}
+            {paper.reviewed_at && (
+              <Badge variant="outline">마지막 검토일: {paper.reviewed_at}</Badge>
+            )}
+            {paper.doi && (
+              <Badge variant="outline">DOI: {paper.doi}</Badge>
+            )}
+          </div>
+        )}
       </div>
 
       {paper.summary && (

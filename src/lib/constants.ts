@@ -1,4 +1,4 @@
-import type { Category, GuideType } from "./supabase/types";
+import type { Category, EvidenceLevel, GuideType } from "./supabase/types";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   autism: "자폐 관련 신호",
@@ -23,6 +23,16 @@ export const GUIDE_TYPE_LABELS: Record<GuideType, string> = {
   action: "행동 가이드",
   age_guide: "연령별 가이드",
   activity: "활동 아이디어",
+};
+
+export const EVIDENCE_LEVEL_LABELS: Record<EvidenceLevel, string> = {
+  systematic_review: "체계적 문헌고찰",
+  randomized_trial: "무작위 대조 연구",
+  cohort: "코호트 연구",
+  case_control: "환자-대조군 연구",
+  cross_sectional: "단면 연구",
+  expert_opinion: "전문가 의견",
+  other: "기타",
 };
 
 export const AGE_BANDS = [

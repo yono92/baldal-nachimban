@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AGE_BANDS, CATEGORY_LABELS, CATEGORY_ICONS, GUIDE_TYPE_LABELS, CATEGORY_COLORS, CATEGORY_CARD_COLORS, GUIDE_TYPE_COLORS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { Category, GuideType } from "@/lib/supabase/types";
 

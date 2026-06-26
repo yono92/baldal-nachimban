@@ -18,9 +18,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { href: "/topics", label: "주제", desc: "발달 관련 주제 탐색" },
+  { href: "/search", label: "검색", desc: "통합 검색" },
   { href: "/papers", label: "논문", desc: "연구 논문 요약" },
   { href: "/guides", label: "가이드", desc: "실천 가이드" },
+  { href: "/activities", label: "활동", desc: "가정 활동 라이브러리" },
   { href: "/ages/0-12", label: "연령별", desc: "연령대별 발달 정보" },
+  { href: "/my-child", label: "맞춤", desc: "우리 아이 맞춤 보기" },
   { href: "/checklist", label: "체크리스트", desc: "발달 이정표 점검" },
   { href: "/glossary", label: "용어 사전", desc: "발달 용어 풀이" },
   { href: "/consultation", label: "AI 상담", desc: "AI 발달 상담 받기" },

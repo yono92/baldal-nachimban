@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminShell } from "./_components/admin-shell";
 
@@ -13,7 +12,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/admin/login");
+    return <>{children}</>;
   }
 
   return <AdminShell user={user}>{children}</AdminShell>;

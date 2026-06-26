@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,8 @@ import type { Domain } from "@/lib/constants";
 import { getMilestonesByAgeBand } from "@/lib/checklist/milestones";
 import type { AgeBandKey } from "@/lib/checklist/milestones";
 import { loadChecklist, saveChecklist, clearChecklist } from "@/lib/checklist/storage";
+import { saveChildProfile } from "@/lib/child-profile/storage";
 import { calculateResults, LEVEL_COLORS, LEVEL_BAR_COLORS } from "@/lib/checklist/scoring";
-import type { ResultLevel } from "@/lib/checklist/scoring";
 
 function getAgeInMonths(birthDate: string): number {
   const birth = new Date(birthDate);
@@ -43,16 +43,19 @@ export default function ChecklistPage() {
   const birthDate = birthDateObj ? format(birthDateObj, "yyyy-MM-dd") : "";
   const ageMonths = birthDate ? getAgeInMonths(birthDate) : null;
   const ageBand = ageMonths !== null ? getAgeBand(ageMonths) : null;
-  const milestones = ageBand ? getMilestonesByAgeBand(ageBand.key as AgeBandKey) : [];
+  const ageBandKey = ageBand?.key as AgeBandKey | undefined;
+  const milestones = ageBandKey ? getMilestonesByAgeBand(ageBandKey) : [];
   const domains = Object.keys(DOMAIN_LABELS) as Domain[];
 
   // localStorage에서 이전 데이터 확인
   useEffect(() => {
     const saved = loadChecklist();
     if (saved) {
-      setBirthDateObj(new Date(saved.birthDate + "T00:00:00"));
-      setChecked(saved.checked);
-      setHasSavedData(true);
+      queueMicrotask(() => {
+        setBirthDateObj(new Date(saved.birthDate + "T00:00:00"));
+        setChecked(saved.checked);
+        setHasSavedData(true);
+      });
     }
   }, []);
 
@@ -74,6 +77,7 @@ export default function ChecklistPage() {
     } else if (!saved) {
       saveChecklist({ birthDate, updatedAt: "", checked });
     }
+    saveChildProfile({ birthDate });
     setStep(2);
   }
 
@@ -89,7 +93,7 @@ export default function ChecklistPage() {
     setStep(1);
   }
 
-  const results = useMemo(() => calculateResults(milestones, checked), [milestones, checked]);
+  const results = calculateResults(milestones, checked);
   const hasWarning = results.some((r) => r.level === "전문가 상담 권장");
 
   const isValid = birthDate && ageBand && ageMonths !== null && ageMonths >= 0 && ageMonths < 72;
