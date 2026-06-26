@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { AdminShell } from "./_components/admin-shell";
+import { AdminUnauthorized } from "./_components/admin-unauthorized";
 
 export default async function AdminLayout({
   children,
@@ -13,6 +14,12 @@ export default async function AdminLayout({
 
   if (!user) {
     return <>{children}</>;
+  }
+
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+
+  if (!isAdmin) {
+    return <AdminUnauthorized email={user.email} />;
   }
 
   return <AdminShell user={user}>{children}</AdminShell>;

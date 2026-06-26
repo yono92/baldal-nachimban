@@ -27,6 +27,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Use `createClient()` from `src/lib/supabase/client.ts` in Client Components (via hooks).
 - Session refresh is handled by middleware (`src/proxy.ts` → `src/lib/supabase/middleware.ts`).
 - Public content reads must filter `published = true`; admin mutations rely on authenticated Supabase users.
+- Admin CMS writes must be gated by `nachimban.admin_users` through the `nachimban.is_admin()` RPC/RLS helper, not by broad `authenticated` policies.
 
 ## Search
 - Integrated search uses the Supabase RPC function `search_content`.

@@ -95,6 +95,11 @@ export interface ConsultationHistory {
   created_at: string;
 }
 
+export interface AdminUser {
+  user_id: string;
+  created_at: string;
+}
+
 export interface SearchResult {
   content_type: ContentType;
   id: string;
@@ -117,6 +122,7 @@ export interface Database {
       glossary_terms: { Row: GlossaryTerm; Insert: Omit<GlossaryTerm, "id" | "created_at">; Update: Partial<Omit<GlossaryTerm, "id">> };
       bookmarks: { Row: Bookmark; Insert: Omit<Bookmark, "id" | "created_at">; Update: Partial<Omit<Bookmark, "id">> };
       consultation_histories: { Row: ConsultationHistory; Insert: Omit<ConsultationHistory, "id" | "created_at">; Update: Partial<Omit<ConsultationHistory, "id">> };
+      admin_users: { Row: AdminUser; Insert: AdminUser; Update: Partial<AdminUser> };
     };
   };
 }
