@@ -27,6 +27,8 @@ const STATUS_COLORS: Record<string, string> = {
   "전문가 상담 권장": "bg-red-100 text-red-800 border-red-300",
 };
 
+const MAX_FREE_TEXT_LENGTH = 1200;
+
 export default function ConsultationPage() {
   const [step, setStep] = useState(1);
 
@@ -274,8 +276,12 @@ export default function ConsultationPage() {
                 placeholder="아이의 행동이나 발달에서 걱정되는 점을 자유롭게 적어주세요..."
                 value={freeText}
                 onChange={(e) => setFreeText(e.target.value)}
+                maxLength={MAX_FREE_TEXT_LENGTH}
                 rows={4}
               />
+              <p className="mt-2 text-xs text-muted-foreground text-right">
+                {freeText.length}/{MAX_FREE_TEXT_LENGTH}
+              </p>
             </CardContent>
           </Card>
 
