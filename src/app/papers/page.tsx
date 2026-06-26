@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/constants";
+import { CATEGORY_LABELS, CATEGORY_ICONS, CATEGORY_COLORS, EVIDENCE_LEVEL_LABELS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "논문",
@@ -12,17 +12,20 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PaperSortSelect } from "./_components/paper-sort-select";
 import { PaperSearchInput } from "./_components/paper-search-input";
-import type { Category } from "@/lib/supabase/types";
+import type { Category, EvidenceLevel } from "@/lib/supabase/types";
 
-type SortKey = "year_desc" | "year_asc" | "title_asc";
+type SortKey = "year_desc" | "reviewed_desc" | "year_asc" | "title_asc";
 
 export default async function PapersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; category?: string; q?: string }>;
+  searchParams: Promise<{ sort?: string; category?: string; evidence?: string; q?: string }>;
 }) {
-  const { sort, category, q } = await searchParams;
-  const sortKey: SortKey = (sort === "year_asc" || sort === "title_asc") ? sort : "year_desc";
+  const { sort, category, evidence, q } = await searchParams;
+  const sortKey: SortKey =
+    sort === "reviewed_desc" || sort === "year_asc" || sort === "title_asc"
+      ? sort
+      : "year_desc";
 
   const supabase = await createClient();
 
@@ -32,11 +35,20 @@ export default async function PapersPage({
     query = query.eq("category", category);
   }
 
+  if (evidence && evidence in EVIDENCE_LEVEL_LABELS) {
+    query = query.eq("evidence_level", evidence);
+  }
+
   if (q) {
     query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);
   }
 
   switch (sortKey) {
+    case "reviewed_desc":
+      query = query
+        .order("reviewed_at", { ascending: false, nullsFirst: false })
+        .order("year", { ascending: false });
+      break;
     case "year_asc":
       query = query.order("year", { ascending: true });
       break;
@@ -49,10 +61,12 @@ export default async function PapersPage({
 
   const { data: papers } = await query;
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
+  const evidenceLevels = Object.keys(EVIDENCE_LEVEL_LABELS) as EvidenceLevel[];
 
-  function filterHref(params: { category?: string; sort?: string }) {
+  function filterHref(params: { category?: string; evidence?: string; sort?: string }) {
     const parts: string[] = [];
     if (params.category) parts.push(`category=${params.category}`);
+    if (params.evidence) parts.push(`evidence=${params.evidence}`);
     if (params.sort && params.sort !== "year_desc") parts.push(`sort=${params.sort}`);
     if (q) parts.push(`q=${encodeURIComponent(q)}`);
     return parts.length > 0 ? `/papers?${parts.join("&")}` : "/papers";
@@ -66,7 +80,7 @@ export default async function PapersPage({
             <h1 className="text-2xl md:text-3xl font-bold">논문</h1>
             <p className="text-muted-foreground mt-2">아동 발달에 관한 주요 연구 논문을 쉽게 정리했습니다.</p>
           </div>
-          <PaperSortSelect current={sortKey} category={category} />
+          <PaperSortSelect current={sortKey} />
         </div>
         <PaperSearchInput current={q ?? ""} />
       </div>
@@ -76,7 +90,7 @@ export default async function PapersPage({
         <p className="text-sm font-medium text-gray-500">카테고리</p>
         <div className="flex flex-wrap gap-2">
           <Link
-            href={filterHref({ sort })}
+            href={filterHref({ evidence, sort })}
             className={`${buttonVariants({ variant: !category ? "default" : "outline", size: "sm" })}${!category ? " ring-2 ring-primary/50" : ""}`}
           >
             전체
@@ -84,10 +98,32 @@ export default async function PapersPage({
           {categories.map((key) => (
             <Link
               key={key}
-              href={filterHref({ category: key, sort })}
+              href={filterHref({ category: key, evidence, sort })}
               className={`${buttonVariants({ variant: category === key ? "default" : "outline", size: "sm" })}${category === key ? " ring-2 ring-primary/50" : ""}`}
             >
               {CATEGORY_ICONS[key]} {CATEGORY_LABELS[key]}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Evidence filters */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-gray-500">근거 수준</p>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={filterHref({ category, sort })}
+            className={`${buttonVariants({ variant: !evidence ? "default" : "outline", size: "sm" })}${!evidence ? " ring-2 ring-primary/50" : ""}`}
+          >
+            전체
+          </Link>
+          {evidenceLevels.map((key) => (
+            <Link
+              key={key}
+              href={filterHref({ category, evidence: key, sort })}
+              className={`${buttonVariants({ variant: evidence === key ? "default" : "outline", size: "sm" })}${evidence === key ? " ring-2 ring-primary/50" : ""}`}
+            >
+              {EVIDENCE_LEVEL_LABELS[key]}
             </Link>
           ))}
         </div>
@@ -110,6 +146,21 @@ export default async function PapersPage({
                   )}
                   {paper.year && (
                     <Badge className="bg-gray-50 text-gray-500 border border-gray-200">{paper.year}</Badge>
+                  )}
+                  {paper.evidence_level && (
+                    <Badge variant="outline">
+                      {EVIDENCE_LEVEL_LABELS[paper.evidence_level as EvidenceLevel]}
+                    </Badge>
+                  )}
+                  {paper.reviewed_at && (
+                    <Badge variant="outline">
+                      검토일 {paper.reviewed_at}
+                    </Badge>
+                  )}
+                  {paper.doi && (
+                    <Badge variant="outline">
+                      DOI
+                    </Badge>
                   )}
                 </div>
                 {paper.summary && (

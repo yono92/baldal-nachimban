@@ -10,13 +10,14 @@ import {
 
 const SORT_OPTIONS = {
   year_desc: "발행연도 (최신순)",
+  reviewed_desc: "최근 검토순",
   year_asc: "발행연도 (오래된순)",
   title_asc: "제목 (가나다순)",
 } as const;
 
 type SortKey = keyof typeof SORT_OPTIONS;
 
-export function PaperSortSelect({ current }: { current: SortKey; category?: string }) {
+export function PaperSortSelect({ current }: { current: SortKey }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
